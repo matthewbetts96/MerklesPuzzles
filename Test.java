@@ -11,34 +11,34 @@ import javax.crypto.spec.DESKeySpec;
 
 import java.util.*;
 import java.io.*;
+import java.security.SecureRandom;
 
 public class Test {
 	public static void main (String[] args){
 
 		//Creates byte arry (16 byte) of all 0's
-		String puzzleStart = "0000000000000000000000";
-		byte[] puzzleStartByteArray = stringToByteArray(puzzleStart);
-		System.out.println("puzzleStart = " + puzzleStartByteArray);
+		byte[] puzzleStart = new byte[16];
+		System.out.println("puzzleStart = " + puzzleStart);
 		
-		//Creates a 64 byte length byte array and fills it with random data    
-		byte[] key = new byte[64];
-		new Random().nextBytes(key);
+		//Creates a 8 byte length byte array and fills it with ('secure') random data    
+		byte[] key = new byte[8];
+		new SecureRandom().nextBytes(key);
 		System.out.println("key (string) = " + byteArrayToString(key));
 
 		//concatenates 2 (or more) byte arrays 
 		try {
 			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-			outputStream.write(puzzleStartByteArray);
+			outputStream.write(puzzleStart);
 			outputStream.write(key);
 			byte[] c = outputStream.toByteArray();
 
 			System.out.println("concatarray = " + byteArrayToString(c));
 
-			byte[] arr2 = Arrays.copyOfRange(c, 16, 80);
+			byte[] arr2 = Arrays.copyOfRange(c, 16, 32);
 	   		System.out.println("key (after copy) = " + byteArrayToString(arr2));
 
 			byte[] arr3 = Arrays.copyOfRange(c, 0, 15);
-	   		System.out.println("puzzlestart (after copy) = " +byteArrayToString(arr3));
+	   		System.out.println("puzzlestart (after copy) = " + byteArrayToString(arr3));
 		} catch (Exception e) {
 			  System.err.println("Caught IOException: " + e.getMessage());
 		}
