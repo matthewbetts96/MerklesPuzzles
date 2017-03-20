@@ -16,15 +16,16 @@ import java.security.SecureRandom;
 public class Test {
 	public static void main (String[] args){
 
+
+	}
+	public static void createPuzzle(int puzzleNum){
 		//Creates byte arry (16 byte) of all 0's
 		byte[] puzzleStart = new byte[16];
-		System.out.println("puzzleStart = " + puzzleStart);
 		
 		//Creates a 8 byte length byte array and fills it with ('secure') random data    
 		byte[] key = new byte[8];
 		new SecureRandom().nextBytes(key);
-		System.out.println("key (string) = " + byteArrayToString(key));
-
+		
 		//concatenates 2 (or more) byte arrays 
 		try {
 			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -44,24 +45,9 @@ public class Test {
 		} catch (Exception e) {
 			  System.err.println("Caught IOException: " + e.getMessage());
 		}
-
-		/*
-			try {
-				System.out.println(createKey(key));
-			} catch (InvalidKeySpecException e) {
-			    System.err.println("Caught IOException: " + e.getMessage());
-			} catch (NoSuchAlgorithmException e) {
-			    System.err.println("Caught IOException: " + e.getMessage());
-			} catch (InvalidKeyException e) {
-			    System.err.println("Caught IOException: " + e.getMessage());
-			}
-			try {
-				Thread.sleep(1000);
-			} catch (Exception e) {
-			    System.err.println("Caught IOException: " + e.getMessage());
-			}*/
+		
+		return null;
 	}
-
 
 
 /**
