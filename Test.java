@@ -34,6 +34,8 @@ public class Test {
 
 			System.out.println("concatarray = " + byteArrayToString(c));
 
+
+			//These return the original inputs by splitting the byte array 
 			byte[] arr2 = Arrays.copyOfRange(c, 16, 32);
 	   		System.out.println("key (after copy) = " + byteArrayToString(arr2));
 
