@@ -4,6 +4,7 @@ import java.security.NoSuchAlgorithmException;
 import java.security.spec.InvalidKeySpecException;
 import java.util.Arrays;
 import java.util.Base64;
+import javax.crypto.Cipher;
 
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
@@ -14,39 +15,127 @@ import java.io.*;
 import java.security.SecureRandom;
 
 public class Test {
+	static Cipher cipher;
+	
 	public static void main (String[] args){
-
-
-	}
-	public static void createPuzzle(int puzzleNum){
-		//Creates byte arry (16 byte) of all 0's
+		int n =1;
+		while(n <= 1024){
+			createPuzzles(n);
+			n++;
+		}
+	
+	public static void createPuzzles(int puzzleNum){
+		//Creates byte arry (16 byte) of all 0's for the start of the puzzle
 		byte[] puzzleStart = new byte[16];
+		
+		//Byte array to store the unique puzzle number
+		byte[] uniqueNum = new byte[2];
+		uniqueNum = smallIntToByteArray(puzzleNum);
 		
 		//Creates a 8 byte length byte array and fills it with ('secure') random data    
 		byte[] key = new byte[8];
 		new SecureRandom().nextBytes(key);
 		
-		//concatenates 2 (or more) byte arrays 
+		//Must declare the (eventual) byted key outside of the try/catch loop...stupid java
+		byte[] bytedKey = new byte[8];
+		
+		//Creates DESKey to be put inside the puzzle
 		try {
-			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-			outputStream.write(puzzleStart);
-			outputStream.write(key);
-			byte[] c = outputStream.toByteArray();
-
-			System.out.println("concatarray = " + byteArrayToString(c));
-
-
-			//These return the original inputs by splitting the byte array 
-			byte[] arr2 = Arrays.copyOfRange(c, 16, 32);
-	   		System.out.println("key (after copy) = " + byteArrayToString(arr2));
-
-			byte[] arr3 = Arrays.copyOfRange(c, 0, 15);
-	   		System.out.println("puzzlestart (after copy) = " + byteArrayToString(arr3));
-		} catch (Exception e) {
-			  System.err.println("Caught IOException: " + e.getMessage());
+			SecretKey DESKey = createKey(key);
+			bytedKey = DESKey.getEncoded();
+		} catch (NoSuchAlgorithmException e) {
+			  System.err.println("Caught NoSuchAlgorithmException: " + e.getMessage());
+		} catch (InvalidKeySpecException e) {
+			  System.err.println("Caught InvalidKeySpecException: " + e.getMessage());
+		} catch (InvalidKeyException e) {
+			  System.err.println("Caught InvalidKeyException: " + e.getMessage());
 		}
 		
-		return null;
+		//concatenates 2 (or more) byte arrays 
+		byte[] c = new byte[26];
+		try {
+			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+			outputStream.write(puzzleStart); //16 bytes
+			outputStream.write(uniqueNum); //2 bytes
+			outputStream.write(bytedKey); //8 bytes
+			c = outputStream.toByteArray();
+			
+			//System.out.println(c);
+			//System.out.println(c.length);
+			//System.out.println(byteArrayToString(c));
+			/*
+			System.out.println("concatarray = " + byteArrayToString(c));
+			//These return the original inputs by splitting the byte array 
+			byte[] arr2 = Arrays.copyOfRange(c, 18, 26);
+	   		System.out.println("DESkey (after copy) = " + byteArrayToString(arr2));
+
+			byte[] arr3 = Arrays.copyOfRange(c, 0, 15);
+	   		System.out.println("puzzlestart (after copy) = " + byteArrayToString(arr3));*/
+	
+		} catch (Exception e) {
+			  System.err.println("Caught Exception: " + e.getMessage());
+		}
+		
+		//Create the key to encrypt the puzzle
+		byte[] placeholder0 = new byte[2];
+		new SecureRandom().nextBytes(placeholder0);
+		byte[] placeholder1 = new byte[6];
+		
+		byte[] anotherPlaceholder = new byte[8];
+		
+		try {
+			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+			outputStream.write(placeholder0);
+			outputStream.write(placeholder1);
+			anotherPlaceholder = outputStream.toByteArray();
+		} catch (Exception e) {
+			  System.err.println("Caught Exception: " + e.getMessage());
+		}
+		
+		//Creates DESKey to encrypt the puzzle from the above byte array 
+		SecretKey anotherDESKey = null;
+		try {
+			anotherDESKey = createKey(anotherPlaceholder);
+			System.out.println(anotherDESKey);
+		} catch (NoSuchAlgorithmException e) {
+			  System.err.println("Caught NoSuchAlgorithmException: " + e.getMessage());
+		} catch (InvalidKeySpecException e) {
+			  System.err.println("Caught InvalidKeySpecException: " + e.getMessage());
+		} catch (InvalidKeyException e) {
+			  System.err.println("Caught InvalidKeyException: " + e.getMessage());
+		}
+		
+		String encryptedText = "";
+		try {
+			encryptedText = encrypt(c, anotherDESKey);
+		} catch (Exception e){
+			System.err.println("Caught Exception: " + e.getMessage());
+		}
+		
+		try {
+			PrintWriter out = new PrintWriter(new FileWriter("puzzles.txt", true));
+			out.println(encryptedText);
+			out.close();
+		} catch (IOException e) {
+			System.err.println("Caught Exception: " + e.getMessage());
+		}
+		
+	}
+	
+	//Note: This method is not my own and is taken from the Lab 3 AES work (with a few changes of course)
+	public static String encrypt(byte[] plainByte, SecretKey secretKey) throws Exception {
+		cipher = Cipher.getInstance("DES");
+		//Initialise the cipher to be in encrypt mode, using the given key.
+		cipher.init(Cipher.ENCRYPT_MODE, secretKey);
+		
+		//Perform the encryption
+		byte[] encryptedByte = cipher.doFinal(plainByte);
+		
+		//Get a new Base64 (ASCII) encoder and use it to convert ciphertext back to a string
+		Base64.Encoder encoder = Base64.getEncoder();
+		String encryptedText = encoder.encodeToString(encryptedByte);
+		//System.out.println(encryptedText);
+		return encryptedText;
 	}
 
 
