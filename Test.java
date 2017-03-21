@@ -23,6 +23,7 @@ public class Test {
 			createPuzzles(n);
 			n++;
 		}
+	}
 	
 	public static void createPuzzles(int puzzleNum){
 		//Creates byte arry (16 byte) of all 0's for the start of the puzzle
@@ -35,35 +36,26 @@ public class Test {
 		//Creates a 8 byte length byte array and fills it with ('secure') random data    
 		byte[] key = new byte[8];
 		new SecureRandom().nextBytes(key);
+			
+		SecretKey puzzleKey = generateDESKey(key);
 		
-		//Must declare the (eventual) byted key outside of the try/catch loop...stupid java
 		byte[] bytedKey = new byte[8];
-		
-		//Creates DESKey to be put inside the puzzle
-		try {
-			SecretKey DESKey = createKey(key);
-			bytedKey = DESKey.getEncoded();
-		} catch (NoSuchAlgorithmException e) {
-			  System.err.println("Caught NoSuchAlgorithmException: " + e.getMessage());
-		} catch (InvalidKeySpecException e) {
-			  System.err.println("Caught InvalidKeySpecException: " + e.getMessage());
-		} catch (InvalidKeyException e) {
-			  System.err.println("Caught InvalidKeyException: " + e.getMessage());
-		}
+		bytedKey = puzzleKey.getEncoded();
 		
 		//concatenates 2 (or more) byte arrays 
 		byte[] c = new byte[26];
 		try {
 			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-			outputStream.write(puzzleStart); //16 bytes
-			outputStream.write(uniqueNum); //2 bytes
-			outputStream.write(bytedKey); //8 bytes
+			outputStream.write(puzzleStart); //16 byte
+			outputStream.write(uniqueNum); //2 byte
+			outputStream.write(bytedKey); //8 byte
 			c = outputStream.toByteArray();
 			
 			//System.out.println(c);
 			//System.out.println(c.length);
 			//System.out.println(byteArrayToString(c));
 			/*
+			keep this for now, will be useful later
 			System.out.println("concatarray = " + byteArrayToString(c));
 			//These return the original inputs by splitting the byte array 
 			byte[] arr2 = Arrays.copyOfRange(c, 18, 26);
@@ -76,13 +68,17 @@ public class Test {
 			  System.err.println("Caught Exception: " + e.getMessage());
 		}
 		
-		//Create the key to encrypt the puzzle
+		//Create the byte array to be turned into the key to encrypt the puzzle
+		
+		//2 bytes of random data 
 		byte[] placeholder0 = new byte[2];
 		new SecureRandom().nextBytes(placeholder0);
+		
+		//6 bytes of 0's
 		byte[] placeholder1 = new byte[6];
 		
+		//Concat them together
 		byte[] anotherPlaceholder = new byte[8];
-		
 		try {
 			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 			outputStream.write(placeholder0);
@@ -93,21 +89,11 @@ public class Test {
 		}
 		
 		//Creates DESKey to encrypt the puzzle from the above byte array 
-		SecretKey anotherDESKey = null;
-		try {
-			anotherDESKey = createKey(anotherPlaceholder);
-			System.out.println(anotherDESKey);
-		} catch (NoSuchAlgorithmException e) {
-			  System.err.println("Caught NoSuchAlgorithmException: " + e.getMessage());
-		} catch (InvalidKeySpecException e) {
-			  System.err.println("Caught InvalidKeySpecException: " + e.getMessage());
-		} catch (InvalidKeyException e) {
-			  System.err.println("Caught InvalidKeyException: " + e.getMessage());
-		}
+		SecretKey puzzleEncryptKey = generateDESKey(anotherPlaceholder);
 		
 		String encryptedText = "";
 		try {
-			encryptedText = encrypt(c, anotherDESKey);
+			encryptedText = encrypt(c, puzzleEncryptKey);
 		} catch (Exception e){
 			System.err.println("Caught Exception: " + e.getMessage());
 		}
@@ -119,7 +105,23 @@ public class Test {
 		} catch (IOException e) {
 			System.err.println("Caught Exception: " + e.getMessage());
 		}
+	}
 		
+	
+	//Creates DESKey 
+	public static SecretKey generateDESKey(byte[] key){
+		SecretKey DESKey = null;
+		try {
+			DESKey = createKey(key);
+		} catch (NoSuchAlgorithmException e) {
+			  System.err.println("Caught NoSuchAlgorithmException: " + e.getMessage());
+		} catch (InvalidKeySpecException e) {
+			  System.err.println("Caught InvalidKeySpecException: " + e.getMessage());
+		} catch (InvalidKeyException e) {
+			  System.err.println("Caught InvalidKeyException: " + e.getMessage());
+		}
+		
+		return DESKey;
 	}
 	
 	//Note: This method is not my own and is taken from the Lab 3 AES work (with a few changes of course)
