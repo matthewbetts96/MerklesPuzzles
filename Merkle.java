@@ -58,21 +58,24 @@ public class Merkle {
 
 		}
 		System.out.println("Key Cracked. " + attempts + " attempts.");
-		System.out.println(byteArrayToString(decrypted));
-
-		byte[] arr1 = Arrays.copyOfRange(decrypted, 0, 25);
-	   	System.out.println("Should be all A's = " + byteArrayToString(arr1));
+		System.out.print("Full (decrypted) Puzzle = ");
+		System.out.print(byteArrayToString(decrypted));
+		System.out.println("");
+	
 		byte[] arr2 = Arrays.copyOfRange(decrypted, 16, 18);
-	   	System.out.println("2 digit num = " + byteArrayToSmallInt(arr2));
-		byte[] arr3 = Arrays.copyOfRange(decrypted, 19, 25);
-	   	System.out.println("random key = " + byteArrayToString(arr3));
+		System.out.println("Puzzle Number = " + byteArrayToSmallInt(arr2));
+		byte[] arr3 = Arrays.copyOfRange(decrypted, 19, 26);
+		System.out.println("Key = " + byteArrayToString(arr3));
 	}
 
 	public static byte[] decrypt(byte[] ciphertext, int attempts) throws Exception {
 		cipher = Cipher.getInstance("DES");
+		
 		byte[] combinedKey = new byte[8];
+		
 		byte[] possibleKeyEnd = new byte[6];
-		byte[] bytedAttempts = (smallIntToByteArray(attempts));
+		byte[] bytedAttempts = new byte[2];
+		new SecureRandom().nextBytes(bytedAttempts);
 		try {
 			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 			outputStream.write(bytedAttempts); //2 bytes
@@ -84,7 +87,14 @@ public class Merkle {
 		try {
             cipher.init(Cipher.DECRYPT_MODE, key);
             byte[] decrypted = cipher.doFinal(ciphertext);
-            return decrypted;
+			
+			byte[] emptyArray = new byte[15];
+			byte[] arr1 = Arrays.copyOfRange(decrypted, 0, 15);
+			if(byteArrayToString(arr1).equals(byteArrayToString(emptyArray))){
+				System.out.println("Holy shit batman!");
+				return decrypted;
+			}
+            return null;
         } catch (Exception e) {
         	//System.err.println("Caught Exception: " + e.getMessage());
         }
@@ -159,6 +169,7 @@ public class Merkle {
 			outputStream.write(keyEnd);
 			fullKey = outputStream.toByteArray();
 		} catch (Exception e) { System.err.println("Caught Exception: " + e.getMessage()); }
+	
 		
 		//Creates DESKey to encrypt the puzzle from the above byte array 
 		SecretKey puzzleEncryptKey = generateDESKey(fullKey);
