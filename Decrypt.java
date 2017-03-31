@@ -41,7 +41,7 @@ public class Decrypt {
             cipher.init(Cipher.DECRYPT_MODE, key);
             byte[] decrypted = cipher.doFinal(ciphertext);
 			
-			byte[] emptyArray = new byte[15];
+			byte[] emptyArray = new byte[15]; //Creates an empty 
 			byte[] arr1 = Arrays.copyOfRange(decrypted, 0, 15);
 			if(crypto.byteArrayToString(arr1).equals(crypto.byteArrayToString(emptyArray))){
 				return decrypted;
@@ -53,14 +53,13 @@ public class Decrypt {
         return null;
 	}
 	
-	public static String decrypting(String encyptedMsg, SecretKey key) throws Exception{
+	public String decrypting(String encyptedMsg, SecretKey key) throws Exception{
+		CryptoLib crypto = new CryptoLib();
 		cipher = Cipher.getInstance("DES");
-		
-		Base64.Decoder decoder = Base64.getDecoder();
-		byte[] bytedEncyptedMsg = decoder.decode(encyptedMsg);
+		byte[] bytedEncyptedMsg = crypto.stringToByteArray(encyptedMsg);
 		cipher.init(Cipher.DECRYPT_MODE, key);
 		byte[] decryptedKey = cipher.doFinal(bytedEncyptedMsg);
-		String decryptedMsg = new String(bytedEncyptedMsg);
+		String decryptedMsg = new String(decryptedKey);
 		return decryptedMsg;
 	} 
 }
