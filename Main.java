@@ -12,12 +12,14 @@ import java.util.*;
 import java.io.*;
 import java.security.SecureRandom;
 import java.util.Random;
+import java.util.Scanner;
 
 public class Main {
-	public static void main (String[] args){
+	public static void main (String[] args) throws Exception{
 		CryptoLib crypto = new CryptoLib();
 		puzzleGenerator generator = new puzzleGenerator();
 		Decrypt decryptor = new Decrypt();
+		Encrypt encryptor = new Encrypt();
 		
 		try { 
 			new File("puzzles.txt").delete();
@@ -39,7 +41,7 @@ public class Main {
 		while(!solved){
 			attempts++;
 			try {
-				decrypted = decryptor.decrypt(ciphertext, attempts);
+				decrypted = decryptor.cracking(ciphertext);
 				if(decrypted != null){
 					solved = true;
 				}
@@ -50,11 +52,24 @@ public class Main {
 		System.out.print(crypto.byteArrayToString(decrypted));
 		System.out.println("");
 		
-		byte[] arr2 = Arrays.copyOfRange(decrypted, 16, 18);
-		System.out.println("Puzzle Number = " + crypto.byteArrayToSmallInt(arr2));
-		byte[] arr3 = Arrays.copyOfRange(decrypted, 19, 26);
-		System.out.println("Key = " + crypto.byteArrayToString(arr3));
+		byte[] finalPuzzleNum = Arrays.copyOfRange(decrypted, 16, 18);
+		System.out.println("Puzzle Number = " + crypto.byteArrayToSmallInt(finalPuzzleNum));
+		byte[] finalBytedKey = Arrays.copyOfRange(decrypted, 18, 26);
+		SecretKey finalKey = crypto.createKey(finalBytedKey);
+		System.out.println("Key = " + finalKey);
 		
+		Scanner sc = new Scanner(System.in);
+		System.out.print("Enter the message to be sent: ");
+		String messageToBeSent = sc.nextLine();
+		
+		//System.out.println(crypto.byteArrayToSmallInt(crypto.stringToByteArray(messageToBeSent)));
+		byte[] bytedMessage = messageToBeSent.getBytes();
+		
+		String finalEncryptedMsg = encryptor.encrypt(bytedMessage,finalKey);
+		System.out.println("Final Encrypted Msg: " + finalEncryptedMsg);
+		
+		String finalDecryptedMsg = decryptor.decrypting(finalEncryptedMsg,finalKey);
+		System.out.println("Final Decrypted Msg: " + finalDecryptedMsg);
 	}
 	
 	//Collects all puzzles and returns the string of the chosen puzzle

@@ -19,7 +19,7 @@ public class Decrypt {
 	
 	static Cipher cipher;
 	
-	public static byte[] decrypt(byte[] ciphertext, int attempts) throws Exception {
+	public static byte[] cracking(byte[] ciphertext) throws Exception {
 		CryptoLib crypto = new CryptoLib();
 		
 		cipher = Cipher.getInstance("DES");
@@ -52,4 +52,15 @@ public class Decrypt {
         }
         return null;
 	}
+	
+	public static String decrypting(String encyptedMsg, SecretKey key) throws Exception{
+		cipher = Cipher.getInstance("DES");
+		
+		Base64.Decoder decoder = Base64.getDecoder();
+		byte[] bytedEncyptedMsg = decoder.decode(encyptedMsg);
+		cipher.init(Cipher.DECRYPT_MODE, key);
+		byte[] decryptedKey = cipher.doFinal(bytedEncyptedMsg);
+		String decryptedMsg = new String(bytedEncyptedMsg);
+		return decryptedMsg;
+	} 
 }
