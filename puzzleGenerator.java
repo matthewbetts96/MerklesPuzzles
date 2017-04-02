@@ -12,18 +12,30 @@ import java.util.*;
 import java.io.*;
 import java.security.SecureRandom;
 import java.util.Random;
-
+/**
+ * Method to create a single puzzle
+ * @author Matthew Betts
+ */
 public class puzzleGenerator {
 	private CryptoLib crypto = new CryptoLib();
 	private Encrypt encryptor = new Encrypt();
 	
+	/**
+	* Creates a puzzle based on a random set of values and the number of the puzzle. 
+	* It then writes the created puzzle to a file.
+	* @param  puzzleNum  The current puzzle number    		
+	*/
 	public void createPuzzles(int puzzleNum){
+		
+		//Gives feedback on the cmd as to how the puzzle creation is going
 		if(puzzleNum == 1){
 			System.out.println("Creating those super hard puzzles...");
 		}
 		if(puzzleNum == 1024){
 			System.out.println("Puzzle creation complete.");
+			System.out.println("----------------------------------");
 		}
+		
 		//Creates byte arry (16 byte) of all 0's for the start of the puzzle
 		byte[] puzzleStart = new byte[16];
 		
@@ -42,11 +54,10 @@ public class puzzleGenerator {
 		} catch (InvalidKeySpecException e) { System.err.println("Caught InvalidKeySpecException: " + e.getMessage());
 		} catch (InvalidKeyException e) { System.err.println("Caught InvalidKeyException: " + e.getMessage()); }		
 		
-		
 		byte[] bytedKey = new byte[8];
 		bytedKey = puzzleKey.getEncoded();
 		
-		//concatenates 2 (or more) byte arrays 
+		//concatenates the entire ouzzle together 
 		byte[] puzzle = new byte[26];
 		try {
 			ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -81,11 +92,13 @@ public class puzzleGenerator {
 		} catch (InvalidKeySpecException e) { System.err.println("Caught InvalidKeySpecException: " + e.getMessage());
 		} catch (InvalidKeyException e) { System.err.println("Caught InvalidKeyException: " + e.getMessage()); }		
 		
+		//Encrypt the puzzle using the puzzle's Key 
 		String encryptedText = "";
 		try {
 			encryptedText = encryptor.encrypt(puzzle, puzzleEncryptKey);
 		} catch (Exception e){ System.err.println("Caught Exception: " + e.getMessage()); }
 		
+		//Print encrypted puzzle to file below the other puzzles.
 		try {
 			PrintWriter out = new PrintWriter(new FileWriter("puzzles.txt", true));
 			out.println(encryptedText);

@@ -13,10 +13,21 @@ import java.io.*;
 import java.security.SecureRandom;
 import java.util.Random;
 
+/**
+ * Method to encrypt a puzzle 
+ * @author Matthew Betts
+ */
 public class Encrypt{
-	
 	static Cipher cipher;
-	//Note: This method is not my own and is taken from the Lab 3 AES work (with a few changes)
+	
+	/**
+	* A method that takes in a byte array and a secret key. It uses the secret key to encrypt the byte array 
+	* and returns an encrypted string.
+	* @param plainByte 	A byte array that is to be encrypted 
+	* @param secretKey 	A SecretKey that will be used to encrypt the plainbyte 
+	* @return			An encrypted string
+	* @throws 			Exception
+	*/
 	public static String encrypt(byte[] plainByte, SecretKey secretKey) throws Exception {
 		cipher = Cipher.getInstance("DES");
 		//Initialise the cipher to be in encrypt mode, using the given key.
